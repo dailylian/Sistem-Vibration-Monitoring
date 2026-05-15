@@ -1,0 +1,156 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- Paket yang Dibutuhkan ---
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{top=3cm, bottom=3cm, left=3cm, right=3cm}
+\usepackage{times} % Menggunakan font mirip Times New Roman
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+% Pengaturan Jarak Baris
+\onehalfspacing
+
+% Pengaturan Format Judul Section
+\titleformat{\section}{\normalfont\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection.}{0.5em}{}
+
+\usepackage{float}
+\begin{document}
+
+% --- HALAMAN SAMPUL ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    {\Large\bfseries LAPORAN EVALUASI TENGAH SEMESTER (ETS)\\}
+    {\Large\bfseries ALGORITMA DAN PEMROGRAMAN\\}
+    
+    \vspace{1.5cm}
+    
+    {\large\itshape Sistem Monitoring Getaran (Vibration Monitoring) pada Turbin\\ Berbasis Bahasa Pemrograman Rust\\}
+    
+    \vspace{2cm}
+    
+    % Ganti 'logo_its.png' dengan file logo Anda jika ada
+    % \includegraphics[width=0.4\textwidth]{logo_its.png} 
+    \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Badge_ITS.png} 
+    % Hapus atau comment baris \fbox yang lama
+\end{figure}
+    
+    \vspace{2cm}
+    
+    {\large\bfseries Disusun Oleh:\\}
+    \vspace{0.5cm}
+    Nada Nur Annisa Sausany\\
+    2042251090\\
+    
+    \vfill
+    
+    {\large\bfseries Departemen Teknik Instrumentasi\\}
+    {\large\bfseries Fakultas Vokasi\\}
+    {\large\bfseries Institut Teknologi Sepuluh Nopember\\}
+\end{titlepage}
+
+% --- DAFTAR ISI ---
+\newpage
+\tableofcontents
+\newpage
+
+% --- ISI LAPORAN ---
+
+\section{PENDAHULUAN}
+
+\subsection{Latar Belakang}
+Dalam operasional industri berat, mesin rotasi seperti turbin merupakan aset kritikal yang membutuhkan pemantauan kondisi secara kontinu. Parameter getaran (\textit{vibration}) adalah indikator utama untuk mendeteksi dini kerusakan mekanis. Getaran yang berlebihan dapat menyebabkan kegagalan fatal pada bearing, ketidakseimbangan (\textit{unbalance}), hingga kerusakan struktural yang membahayakan personel dan lingkungan kerja.
+
+Seiring dengan standar industri modern, dibutuhkan sistem monitoring yang memiliki performa tinggi dan keamanan memori (\textit{memory safety}) untuk menghindari kegagalan sistem saat pengolahan data sensor secara real-time. Bahasa pemrograman Rust hadir sebagai solusi yang menawarkan keamanan memori tanpa \textit{garbage collector}, menjamin sistem berjalan dengan latensi rendah dan bebas dari \textit{runtime errors}.
+
+\subsection{Tujuan}
+Tujuan dari proyek ini adalah merancang perangkat lunak simulasi monitoring getaran turbin yang mampu melakukan validasi data input, memberikan klasifikasi status mesin secara otomatis (Normal/Warning/Bahaya), dan menghitung tren getaran menggunakan metode komputasi numerik.
+
+\section{STUDI KASUS INSTRUMENTASI}
+
+\subsection{Deskripsi Sistem}
+Sistem ini dirancang untuk mensimulasikan pemantauan tingkat getaran pada turbin secara real-time. Masalah utama yang ingin diselesaikan adalah meminimalisir risiko kegagalan operasional akibat keterlambatan deteksi getaran abnormal. Sistem akan menerima input nilai getaran dalam satuan mm/s (\textit{velocity}) dan memberikan respon instan berupa status kondisi mesin.
+
+\subsection{Parameter Instrumentasi}
+Sistem ini menggunakan beberapa parameter teknis sebagai batasan kontrol (\textit{setpoint}):
+\begin{itemize}[noitemsep]
+    \item \textbf{Kondisi Normal:} Nilai getaran $<$ 2.5 mm/s
+    \item \textbf{Threshold Warning:} Ditetapkan pada 2.5 mm/s. Mesin mulai menunjukkan gejala getaran tidak stabil.
+    \item \textbf{Threshold Bahaya (Alarm):} Ditetapkan pada 4.0 mm/s. Jika getaran mencapai angka ini, sistem akan mengaktifkan alarm kritis untuk segera dilakukan tindakan darurat.
+\end{itemize}
+
+\subsection{Implementasi Komputasi Numerik}
+Untuk memberikan hasil pantauan yang lebih akurat, sistem mengintegrasikan metode \textit{Moving Average} (Rata-rata Bergerak). Hal ini berfungsi untuk menghaluskan fluktuasi data sesaat yang masuk, sehingga operator dapat melihat tren kestabilan turbin secara keseluruhan melalui riwayat data yang tersimpan.
+
+\section{ALGORITMA DAN FLOWCHART}
+
+\subsection{Algoritma Sistem}
+\begin{enumerate}[noitemsep]
+    \item Inisialisasi \textit{struct} Sensor untuk menyimpan data getaran dan \texttt{Vec<f32>} untuk menyimpan riwayat data (\textit{history}).
+    \item Program masuk ke dalam \textit{looping} pemantauan.
+    \item Pengguna memasukkan nilai getaran sensor.
+    \item Validasi data: memastikan input adalah angka (f32). Jika tidak valid, program meminta input ulang.
+    \item Evaluasi kondisi:
+    \begin{itemize}[noitemsep]
+        \item Jika getaran $\ge$ 4.0: Status BAHAYA + Alarm Aktif.
+        \item Jika getaran $\ge$ 2.5: Status WARNING.
+        \item Jika lainnya: status NORMAL.
+    \end{itemize}
+    \item Penyimpanan data ke dalam struktur Vector.
+    \item Perhitungan komputasi numerik \textit{Moving Average}.
+    \item Tampilkan hasil monitoring, rata-rata, dan riwayat data.
+    \item Opsi untuk mengulang pemantauan atau berhenti.
+\end{enumerate}
+
+\subsection{Flowchart}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Flowchart.jpg} 
+    \caption{Alur logika sistem monitoring getaran pada turbin.}
+    \label{fig:flowchart_monitoring}
+\end{figure}
+
+\section{PENJELASAN PROGRAM RUST}
+Program ini dikembangkan menggunakan bahasa Rust dengan fokus pada efisiensi pengolahan data. Penggunaan \textit{match} untuk penanganan error pada input memastikan program tidak \textit{crash} saat menerima input non-numerik. Penggunaan struktur data Vector dinamis memungkinkan sistem menyimpan data dalam jumlah besar tanpa perlu menentukan ukuran array di awal.
+
+\section{KONSEP OOP}
+Implementasi pemrograman berbasis objek dilakukan menggunakan \textit{struct} dan \textit{impl}:
+\begin{itemize}
+    \item \textbf{Struct Sensor:} Mengelola identitas data sensor berupa nilai getaran tunggal.
+    \item \textbf{Impl Sensor:} Berisi metode \texttt{display()} yang bertanggung jawab atas logika pengambilan keputusan status mesin (Normal/Warning/Bahaya) (\textit{Control Logic}).
+\end{itemize}
+
+\section{IMPLEMENTASI KOMPUTASI NUMERIK}
+Sistem mengimplementasikan metode \textit{Moving Average} untuk mengolah sekumpulan data yang tersimpan. Algoritma ini bekerja dengan menghitung rata-rata aritmetika dari seluruh data yang telah dimasukkan sejak program dimulai. Teknik ini sangat efektif dalam instrumentasi untuk melihat kecenderungan (tren) apakah sebuah mesin semakin rusak seiring berjalannya waktu atau tetap stabil.
+
+\section{HASIL PENGUJIAN}
+\begin{figure}[H]
+    \centering
+    % Gambar pertama
+    \includegraphics[width=0.8\textwidth]{Hasil_Uji1.png}
+    
+    \vspace{0.5cm} % Memberi jarak antar gambar
+    
+    % Gambar kedua
+    \includegraphics[width=0.8\textwidth]{Hasil_Uji2.png}
+    
+    \caption{Tampilan Output Program Monitoring Getaran.}
+    \label{fig:hasil_pengujian}
+\end{figure}
+
+\section{ANALISIS HASIL}
+Berdasarkan hasil pengujian, sistem kontrol bekerja secara akurat sesuai dengan parameter threshold yang ditetapkan. Saat nilai dimasukkan 2.0, sistem memberikan status NORMAL dengan rata-rata yang sesuai. Ketika diberikan nilai 3.5, sistem menunjukkan status WARNING, di mana sudah menunjukkan siaga dan vibrasi mesin mulai tidak stabil. Saat nilai dimasukkan 5.0, sistem secara otomatis mengubah status menjadi BAHAYA dan mengaktifkan pesan ALARM! Hal ini menunjukkan bahwa logika percabangan dan penanganan data pada Rust berhasil menjalankan fungsi proteksi turbin secara otomatis. Penggunaan \textit{Moving Average} terbukti dapat menampilkan tren data yang membantu dalam analisis kestabilan mesin.
+
+\section{KESIMPULAN}
+Sistem monitoring getaran turbin berbasis Rust telah berhasil diimplementasikan dengan mengintegrasikan logika kontrol otomatis dan pengolahan data numerik. Penggunaan \textit{struct} mempermudah manajemen komponen sensor, sementara fitur \textit{memory safety} pada Rust menjamin performa andal untuk pemantauan jangka panjang. Sistem ini layak digunakan sebagai solusi pemantauan aset industri secara digital.
+
+\end{document}
